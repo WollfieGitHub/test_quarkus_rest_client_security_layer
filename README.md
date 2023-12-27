@@ -1,69 +1,44 @@
 # quarkus_rest_client_security_layer
 
-This project uses Quarkus, the Supersonic Subatomic Java Framework.
-
-If you want to learn more about Quarkus, please visit its website: https://quarkus.io/ .
-
-## Running the application in dev mode
-
-You can run your application in dev mode that enables live coding using:
 
 ```shell script
 ./mvnw compile quarkus:dev
 ```
+Two different scenarios:
 
-> **_NOTE:_**  Quarkus now ships with a Dev UI, which is available in dev mode only at http://localhost:8080/q/dev/.
+### Scenario 1
 
-## Packaging and running the application
-
-The application can be packaged using:
-
+With `SecurityIdentityAugmentorImpl`'s `testCallInAugmentor` set to false:
 ```shell script
-./mvnw package
+curl http://localhost:8080/hello2
+```
+#### Console Result
+
+```
+2023-12-27 17:09:08,278 INFO  [com.exa.ClientDelegate] (vert.x-eventloop-thread-0) Call to no-auth...
+2023-12-27 17:09:08,296 INFO  [com.exa.ClientHeadersFactoryImpl] (vert.x-eventloop-thread-0) Incoming headers size: 3
+2023-12-27 17:09:08,344 DEBUG [org.jbo.res.rea.cli.log.DefaultClientLogger] (vert.x-eventloop-thread-0) Request: GET http://localhost:8080/ping/no-auth 	Headers[Accept=text/plain;charset=UTF-8 User-Agent=Resteasy Reactive Client], Empty body
+2023-12-27 17:09:08,360 DEBUG [org.jbo.res.rea.cli.log.DefaultClientLogger] (vert.x-eventloop-thread-0) Response: GET http://localhost:8080/ping/no-auth, Status[200 OK], 	Headers[content-length=4 Content-Type=text/plain;charset=UTF-8], Body: pong
+2023-12-27 17:09:08,364 INFO  [com.exa.ClientDelegate] (vert.x-eventloop-thread-0) Response from no-auth endpoint: "pong"
+2023-12-27 17:09:08,365 INFO  [com.exa.ClientDelegate] (vert.x-eventloop-thread-0) Call to authorized...
 ```
 
-It produces the `quarkus-run.jar` file in the `target/quarkus-app/` directory.
-Be aware that it’s not an _über-jar_ as the dependencies are copied into the `target/quarkus-app/lib/` directory.
-
-The application is now runnable using `java -jar target/quarkus-app/quarkus-run.jar`.
-
-If you want to build an _über-jar_, execute the following command:
-
+### Scenario 2
+With the variable set to true:
 ```shell script
-./mvnw package -Dquarkus.package.type=uber-jar
+curl http://localhost:8080/hello1
 ```
 
-The application, packaged as an _über-jar_, is now runnable using `java -jar target/*-runner.jar`.
-
-## Creating a native executable
-
-You can create a native executable using:
-
-```shell script
-./mvnw package -Dnative
+#### Console Result
+```
+2023-12-27 17:11:21,172 INFO  [com.exa.ClientDelegate] (vert.x-eventloop-thread-1) Call to no-auth...
+2023-12-27 17:11:21,172 INFO  [com.exa.ClientHeadersFactoryImpl] (vert.x-eventloop-thread-1) Incoming headers size: 0
+2023-12-27 17:11:21,175 DEBUG [org.jbo.res.rea.cli.log.DefaultClientLogger] (vert.x-eventloop-thread-1) Request: GET http://localhost:8080/ping/no-auth 	Headers[Accept=text/plain;charset=UTF-8 User-Agent=Resteasy Reactive Client], Empty body
 ```
 
-Or, if you don't have GraalVM installed, you can run the native executable build in a container using:
+### Conclusion
 
-```shell script
-./mvnw package -Dnative -Dquarkus.native.container-build=true
-```
-
-You can then execute your native executable with: `./target/quarkus_rest_client_security_layer-1.0-SNAPSHOT-runner`
-
-If you want to learn more about building native executables, please consult https://quarkus.io/guides/maven-tooling.
-
-## Related Guides
-
-- SmallRye JWT ([guide](https://quarkus.io/guides/security-jwt)): Secure your applications with JSON Web Token
-- OpenID Connect Token Propagation Reactive ([guide](https://quarkus.io/guides/security-openid-connect-client)): Use
-  Reactive REST Client to propagate the incoming Bearer access token or token acquired from Authorization Code Flow as
-  HTTP Authorization Bearer token
-
-## Provided Code
-
-### RESTEasy Reactive
-
-Easily start your Reactive RESTful Web Services
-
-[Related guide section...](https://quarkus.io/guides/getting-started-reactive#reactive-jax-rs-resources)
+When the rest client is used within the security layer,
+maybe because there is no RESTEasy reactive request context active,
+the request times-out and the header aren't propagated in
+`ClientHeadersFactoryImpl`
