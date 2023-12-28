@@ -16,10 +16,9 @@ public class ClientHeadersFactoryImpl extends ReactiveClientHeadersFactory {
 		MultivaluedMap<String, String> incomingHeaders,
 		MultivaluedMap<String, String> clientOutgoingHeaders
 	) {
-		Log.infof("Incoming headers size: %d", incomingHeaders.size());
+		Log.infof("[Factory] Invoked: Incoming headers : %s", incomingHeaders.entrySet());
 
 		return Uni.createFrom().item(new MultivaluedHashMap<>());
 	}
-
 
 }

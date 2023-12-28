@@ -13,16 +13,19 @@ public class ClientResource implements Client {
 
 	@Override
 	public Uni<String> withAuthorizationPing() {
+		Log.infof("Authorized resource reached");
 		return Uni.createFrom().item("pong");
 	}
 
 	@Override
 	public Uni<String> withoutAuthorizationPing() {
+		Log.infof("No-auth resource reached");
 		return Uni.createFrom().item("pong");
 	}
 
 	@Override
 	public Uni<String> hello1() {
+		Log.infof("Hello resource reached");
 		return Uni.createFrom().item("hello");
 	}
 
